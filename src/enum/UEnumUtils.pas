@@ -97,6 +97,7 @@ var
   I: Integer;
   FEnumVariant, FEnumVariant2: Variant;
 begin
+  Result := -1;
   for I := 0 to TEnumUtils.length<T> -1  do
   begin
     FEnumVariant := TValue.FromOrdinal(TypeInfo(T), I).AsVariant;

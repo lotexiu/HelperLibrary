@@ -30,7 +30,11 @@ package HelperLibraryPackage;
 requires
   rtl,
   RESTComponents,
-  DbxCommonDriver;
+  DbxCommonDriver,
+  inet,
+  IndySystem,
+  IndyProtocols,
+  IndyCore;
 
 contains
   UGenericUtils in 'src\generic\UGenericUtils.pas',
@@ -55,6 +59,9 @@ contains
   UJSONUtils in 'src\json\UJSONUtils.pas',
   UTimeUtils in 'src\time\UTimeUtils.pas',
   UJSONException in 'src\json\UJSONException.pas',
-  UStringUtils in 'src\string\UStringUtils.pas';
+  UStringUtils in 'src\string\UStringUtils.pas',
+  UApp in 'src\rest\UApp.pas',
+  UAppAPI in 'src\rest\api\UAppAPI.pas',
+  UAppAPIRequest in 'src\rest\api\UAppAPIRequest.pas';
 
 end.
