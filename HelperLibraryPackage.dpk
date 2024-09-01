@@ -1,0 +1,60 @@
+package HelperLibraryPackage;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  RESTComponents,
+  DbxCommonDriver;
+
+contains
+  UGenericUtils in 'src\generic\UGenericUtils.pas',
+  UGenericException in 'src\generic\UGenericException.pas',
+  UDebugUtils in 'src\debug\UDebugUtils.pas',
+  UArray in 'src\array\UArray.pas',
+  UArrayUtils in 'src\array\UArrayUtils.pas',
+  UArrayReferences in 'src\array\UArrayReferences.pas',
+  UArrayException in 'src\array\UArrayException.pas',
+  UThreadUtils in 'src\thread\UThreadUtils.pas',
+  UThreadData in 'src\thread\UThreadData.pas',
+  UGenericDictionary in 'src\generic\UGenericDictionary.pas',
+  UWindowsUtils in 'src\windows\UWindowsUtils.pas',
+  UNTDLL in 'src\ntdll\UNTDLL.pas',
+  UFileUtils in 'src\file\UFileUtils.pas',
+  UAttributesUtils in 'src\attributes\UAttributesUtils.pas',
+  UConsoleUtils in 'src\console\UConsoleUtils.pas',
+  UDateUtils in 'src\date\UDateUtils.pas',
+  UEnum in 'src\enum\UEnum.pas',
+  UEnumException in 'src\enum\UEnumException.pas',
+  UEnumUtils in 'src\enum\UEnumUtils.pas',
+  UJSONUtils in 'src\json\UJSONUtils.pas',
+  UTimeUtils in 'src\time\UTimeUtils.pas',
+  UJSONException in 'src\json\UJSONException.pas',
+  UStringUtils in 'src\string\UStringUtils.pas';
+
+end.

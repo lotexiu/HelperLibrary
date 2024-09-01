@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A77A06C8-936F-4883-BAFD-24322E7F94DE}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="HelperLibraryPackage.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="HelperLibraryDLL.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="HelperLibraryPackage">
+        <MSBuild Projects="HelperLibraryPackage.dproj"/>
+    </Target>
+    <Target Name="HelperLibraryPackage:Clean">
+        <MSBuild Projects="HelperLibraryPackage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HelperLibraryPackage:Make">
+        <MSBuild Projects="HelperLibraryPackage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="HelperLibraryDLL">
+        <MSBuild Projects="HelperLibraryDLL.dproj"/>
+    </Target>
+    <Target Name="HelperLibraryDLL:Clean">
+        <MSBuild Projects="HelperLibraryDLL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HelperLibraryDLL:Make">
+        <MSBuild Projects="HelperLibraryDLL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="HelperLibraryPackage;HelperLibraryDLL"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="HelperLibraryPackage:Clean;HelperLibraryDLL:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="HelperLibraryPackage:Make;HelperLibraryDLL:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
