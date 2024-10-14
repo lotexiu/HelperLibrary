@@ -65,19 +65,21 @@ end;
 
 function TGenericDictionary.containsValue<T>(AValue: T): Boolean;
 var
-  FResult: Boolean;
+  LResult: Boolean;
+  LList: TArray<TValue>;
 begin
-  FResult := False;
-  TArrayUtils.forEach<TValue>(FDictionary.Values.ToArray,
-  procedure(ATValue: TValue; out ABreak: Boolean)
+  LResult := False;
+  LList := FDictionary.Values.ToArray;
+  TArrayUtils.forEach<TValue>(LList,
+  procedure(out ATValue: TValue; out ABreak: Boolean)
   begin
     if TGenericUtils.equals<T>(ATValue.AsType<T>) then
     begin
-      FResult := True;
+      LResult := True;
       ABreak := True;
     end
   end);
-  Result := FResult;
+  Result := LResult;
 end;
 
 constructor TGenericDictionary.Create;
@@ -86,9 +88,11 @@ begin
 end;
 
 destructor TGenericDictionary.Destroy;
+var LList: TArray<TValue>;
 begin
-  TArrayUtils.forEach<TValue>(Values,
-  procedure(AValue: TValue; out ABreak: Boolean)
+  LList := Values;
+  TArrayUtils.forEach<TValue>(LList,
+  procedure(out AValue: TValue; out ABreak: Boolean)
   var
     FObj: TObject;
     I: Integer;

@@ -62,6 +62,7 @@ contains
   UStringUtils in 'src\string\UStringUtils.pas',
   UApp in 'src\rest\UApp.pas',
   UAppAPI in 'src\rest\api\UAppAPI.pas',
-  UAppAPIRequest in 'src\rest\api\UAppAPIRequest.pas';
+  UAppAPIRequest in 'src\rest\api\UAppAPIRequest.pas',
+  UGenericObject in 'src\generic\UGenericObject.pas';
 
 end.

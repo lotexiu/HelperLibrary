@@ -9,217 +9,216 @@ uses
 
 type
   TArrayUtils = class
-    class function TArrayToTList<T>(AArray: TArray<T>): TList<T>;
-    class function TArrayCast<T,R>(AArray: TArray<T>): TArray<R>; overload;
-    class function TArrayCast<R>(AArray: TArray<TValue>): TArray<R>; overload;
+//    class function TArrayToTList<T>(AArray: TArray<T>): TList<T>;
+//    class function TArrayCast<T,R>(AArray: TArray<T>): TArray<R>; overload;
+//    class function TArrayCast<R>(AArray: TArray<TValue>): TArray<R>; overload;
+//    class function filter<T>(AList: TArray<T>; AFunc: TFilter<T>): TArray<T>; overload;
+//    class function filter<T>(AList: TArray<T>; AFunc: TFilterIndex<T>): TArray<T>; overload;
 
+    { Pointer }
+    class procedure forEach<T>(AList: Pointer; AProc: TForEach<T>); overload;
+    class procedure forEach<T>(AList: Pointer; AProc: TForEachBreak<T>); overload;
+    class procedure forEach<T>(AList: Pointer; AProc: TForEachIndex<T>); overload;
+    class procedure forEach<T>(AList: Pointer; AProc: TForEachIndexBreak<T>); overload;
+
+    { TList }
     class procedure forEach<T>(AList: TList<T>; AProc: TForEach<T>); overload;
     class procedure forEach<T>(AList: TList<T>; AProc: TForEachIndex<T>); overload;
     class procedure forEach<T>(AList: TList<T>; AProc: TForEachBreak<T>); overload;
     class procedure forEach<T>(AList: TList<T>; AProc: TForEachIndexBreak<T>); overload;
 
-    class procedure forEach<T>(AList: TArray<T>; AProc: TForEach<T>); overload;
-    class procedure forEach<T>(AList: TArray<T>; AProc: TForEachIndex<T>); overload;
-    class procedure forEach<T>(AList: TArray<T>; AProc: TForEachBreak<T>); overload;
-    class procedure forEach<T>(AList: TArray<T>; AProc: TForEachIndexBreak<T>); overload;
+    { List - Maybe inst going to work very well. }
+    class procedure forEach<T>(out AList: TArray<T>; AProc: TForEach<T>); overload;
+    class procedure forEach<T>(out AList: TArray<T>; AProc: TForEachBreak<T>); overload;
+    class procedure forEach<T>(out AList: TArray<T>; AProc: TForEachIndex<T>); overload;
+    class procedure forEach<T>(out AList: TArray<T>; AProc: TForEachIndexBreak<T>); overload;
 
     class function map<T>(AList: TArray<T>; AFunc: TMap<T>): TArray<T>; overload;
     class function map<T>(AList: TArray<T>; AFunc: TMapIndex<T>): TArray<T>; overload;
     class function map<T,R>(AList: TArray<T>; AFunc: TMap<T,R>): TArray<R>; overload;
     class function map<T,R>(AList: TArray<T>; AFunc: TMapIndex<T,R>): TArray<R>; overload;
-
-    class function filter<T>(AList: TArray<T>; AFunc: TFilter<T>): TArray<T>; overload;
-    class function filter<T>(AList: TArray<T>; AFunc: TFilterIndex<T>): TArray<T>; overload;
   end;
 
 implementation
 
 uses
+  SysUtils,
+  TypInfo,
   UArrayException,
   UGenericUtils;
 
 { TArrayUtils }
 
-class function TArrayUtils.TArrayCast<R>(AArray: TArray<TValue>): TArray<R>;
-begin
-  try
-    Result := map<TValue, R>(AArray,
-    function(AValue: TValue): R
-    begin
-      Result := AValue.AsType<R>;
-    end);
-  except
-    raise TArrayException.Create('Impossible cast.');
-  end;
-end;
+{ Pointer }
 
-class function TArrayUtils.TArrayCast<T, R>(AArray: TArray<T>): TArray<R>;
-begin
-  try
-    Result := map<T, R>(AArray,
-    function(AValue: T): R
-    begin
-      Result := TValue.From<T>(AValue).AsType<R>;
-    end);
-  except
-    raise TArrayException.Create('Impossible cast.');
-  end;
-end;
-
-class function TArrayUtils.TArrayToTList<T>(AArray: TArray<T>): TList<T>;
+class procedure TArrayUtils.forEach<T>(AList: Pointer;
+  AProc: TForEachIndexBreak<T>);
 var
   I: Integer;
+  LBreak: Boolean;
+  LList: TArray<T>;
+  LCurrentItem: T;
+  LPTypeInfo: PTypeInfo;
+  LRealList: TValue;
 begin
-  Result := TList<T>.Create;
-  for I := 0 to High(AArray) do
-    Result.Add(AArray[I]);
+  LList := TArray<T>(AList^); { Using into the *For }
+  LPTypeInfo := TGenericUtils.rttiType<TArray<T>>.Handle;
+  TValue.Make(AList,LPTypeInfo,LRealList); { Used to make the update }
+  LBreak := False;
+  for I := 0 to High(LList) do
+  begin
+    LCurrentItem := LList[I];
+    AProc(LCurrentItem, I, LBreak);
+    LRealList.SetArrayElement(I,TValue.From<T>(LCurrentItem));
+    if LBreak then
+      Break;
+  end;
 end;
+
+class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEachIndex<T>);
+begin
+  forEach<T>(AList,
+  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  begin
+    AProc(AItem, AIndex);
+  end);
+end;
+
+class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEachBreak<T>);
+begin
+  forEach<T>(AList,
+  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  begin
+    AProc(AItem, ABreak);
+  end);
+end;
+
+class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEach<T>);
+begin
+  forEach<T>(AList,
+  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  begin
+    AProc(AItem);
+  end);
+end;
+
+{ List - TList }
 
 class procedure TArrayUtils.forEach<T>(AList: TList<T>; AProc: TForEach<T>);
+var LList: TArray<T>;
 begin
-  if (not TGenericUtils.isEmptyOrNull(AList)) then
-    ForEach<T>(AList.ToArray, AProc);
+  LList := AList.ToArray;
+  forEach<T>(LList, AProc);
+  AList.Clear;
+  AList.AddRange(LList);
 end;
 
 class procedure TArrayUtils.forEach<T>(AList: TList<T>;
   AProc: TForEachIndex<T>);
+var LList: TArray<T>;
 begin
-  if (not TGenericUtils.isEmptyOrNull(AList)) then
-    ForEach<T>(AList.ToArray, AProc);
+  LList := AList.ToArray;
+  forEach<T>(LList, AProc);
+  AList.Clear;
+  AList.AddRange(LList);
 end;
 
 class procedure TArrayUtils.forEach<T>(AList: TList<T>;
   AProc: TForEachBreak<T>);
+var LList: TArray<T>;
 begin
-  if (not TGenericUtils.isEmptyOrNull(AList)) then
-    ForEach<T>(AList.ToArray, AProc);
+  LList := AList.ToArray;
+  forEach<T>(LList, AProc);
+  AList.Clear;
+  AList.AddRange(LList);
 end;
 
 class procedure TArrayUtils.forEach<T>(AList: TList<T>;
   AProc: TForEachIndexBreak<T>);
+var LList: TArray<T>;
 begin
-  if (not TGenericUtils.isEmptyOrNull(AList)) then
-    ForEach<T>(AList.ToArray, AProc);
+  LList := AList.ToArray;
+  forEach<T>(LList, AProc);
+  AList.Clear;
+  AList.AddRange(LList);
 end;
 
-class procedure TArrayUtils.forEach<T>(AList: TArray<T>; AProc: TForEach<T>);
+{ List - Array }
+
+class procedure TArrayUtils.forEach<T>(out AList: TArray<T>; AProc: TForEach<T>);
 begin
-  forEach<T>(AList,
-  procedure(AValue: T; AIndex: Integer; out ABreak: Boolean)
-  begin
-    AProc(AValue);
-  end);
+  forEach<T>(@AList, AProc);
 end;
 
-class procedure TArrayUtils.forEach<T>(AList: TArray<T>;
+class procedure TArrayUtils.forEach<T>(out AList: TArray<T>;
+  AProc: TForEachBreak<T>);
+begin
+  forEach<T>(@AList, AProc);
+end;
+
+class procedure TArrayUtils.forEach<T>(out AList: TArray<T>;
   AProc: TForEachIndex<T>);
 begin
-  forEach<T>(AList,
-  procedure(AValue: T; AIndex: Integer; out ABreak: Boolean)
-  begin
-    AProc(AValue, AIndex);
-  end);
+  forEach<T>(@AList, AProc);
 end;
 
-class procedure TArrayUtils.forEach<T>(AList: TArray<T>;
-  AProc: TForEachBreak<T>);
-begin
-  forEach<T>(AList,
-  procedure(AValue: T; AIndex: Integer; out ABreak: Boolean)
-  begin
-    AProc(AValue, ABreak);
-  end);
-end;
-
-class procedure TArrayUtils.forEach<T>(AList: TArray<T>;
+class procedure TArrayUtils.forEach<T>(out AList: TArray<T>;
   AProc: TForEachIndexBreak<T>);
-var
-  I: Integer;
-  FBreak: Boolean;
 begin
-  FBreak := False;
-  if (not TGenericUtils.isEmptyOrNull(AList)) and (Length(AList) > 0) then
-  begin
-    for I := 0 to High(AList) do
-    begin
-      AProc(AList[I], I, FBreak);
-      if FBreak then
-        Break;
-    end;
-  end;
+  forEach<T>(@AList, AProc);
 end;
 
-class function TArrayUtils.map<T>(AList: TArray<T>; AFunc: TMap<T>): TArray<T>;
-begin
-  Result := map<T>(AList,
-  function(AValue: T; AIndex: Integer): T
-  begin
-    Result := AFunc(AValue);
-  end)
-end;
+{ Map }
 
-class function TArrayUtils.map<T>(AList: TArray<T>;
-  AFunc: TMapIndex<T>): TArray<T>;
+class function TArrayUtils.map<T, R>(AList: TArray<T>;
+  AFunc: TMap<T, R>): TArray<R>;
+var LList: TList<R>;
 begin
-  Result := map<T,T>(AList,
-  function(AValue: T; AIndex: Integer): T
+  LList := TList<R>.Create;
+  forEach<T>(AList, procedure(out AItem: T)
   begin
-    Result := AFunc(AValue, AIndex);
-  end)
+    LList.Add(AFunc(AItem));
+  end);
+  Result := LList.ToArray;
+  LList.Free;
 end;
 
 class function TArrayUtils.map<T, R>(AList: TArray<T>;
   AFunc: TMapIndex<T, R>): TArray<R>;
-var
-  FResult: TArray<R>;
+var LList: TList<R>;
 begin
-  SetLength(FResult, Length(AList));
-  forEach<T>(AList,
-  procedure(AValue: T; AIndex: Integer)
+  LList := TList<R>.Create;
+  forEach<T>(AList, procedure(out AItem: T; AIndex: Integer)
   begin
-    FResult[AIndex] := AFunc(AValue, AIndex);
+    LList.Add(AFunc(AItem, AIndex));
   end);
-  Result := FResult;
+  Result := LList.ToArray;
+  LList.Free;
 end;
 
-class function TArrayUtils.map<T, R>(AList: TArray<T>;
-  AFunc: TMap<T, R>): TArray<R>;
+class function TArrayUtils.map<T>(AList: TArray<T>; AFunc: TMap<T>): TArray<T>;
+var LList: TList<T>;
 begin
-  Result := map<T, R>(AList,
-  function(AValue: T; AIndex: Integer): R
+  LList := TList<T>.Create;
+  forEach<T>(AList, procedure(out AItem: T)
   begin
-    Result := AFunc(AValue);
-  end)
+    LList.Add(AFunc(AItem));
+  end);
+  Result := LList.ToArray;
+  LList.Free;
 end;
 
-class function TArrayUtils.filter<T>(AList: TArray<T>;
-  AFunc: TFilter<T>): TArray<T>;
+class function TArrayUtils.map<T>(AList: TArray<T>;
+  AFunc: TMapIndex<T>): TArray<T>;
+var LList: TList<T>;
 begin
-  Result := filter<T>(AList,
-  function(AValue: T; AIndex: Integer): T
+  LList := TList<T>.Create;
+  forEach<T>(AList, procedure(out AItem: T; AIndex: Integer)
   begin
-    Result := AFunc(AValue);
+    LList.Add(AFunc(AItem, AIndex));
   end);
-end;
-
-class function TArrayUtils.filter<T>(AList: TArray<T>;
-  AFunc: TFilterIndex<T>): TArray<T>;
-var
-  FResult: TArray<T>;
-begin
-  FResult := [];
-  forEach<T>(AList,
-  procedure(AValue: T; AIndex: Integer)
-  var
-    FFuncResult: T;
-  begin
-    FFuncResult := AFunc(AValue, AIndex);
-    if TGenericUtils.isEmptyOrNull<T>(FFuncResult) then
-    begin
-      SetLength(FResult, Length(FResult)+1);
-      FResult[Length(FResult)-1] := AValue;
-    end;
-  end);
+  Result := LList.ToArray;
+  LList.Free;
 end;
 
 end.

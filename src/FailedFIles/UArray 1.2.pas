@@ -18,12 +18,13 @@ type
     { son fields }
     FIndex: Integer;
     FFather: Pointer;
+    FFatherMethod: TProc<Integer, Integer, Pointer>;
+    FRArraySon: Boolean;
     { fields }
     FValue: _array<T>;
     FRttiContext: TRttiContext;
     FRtti: TRttiType;
     FMethod: TProc<Integer, Integer, Pointer>;
-    FRArraySon: Boolean;
     function getItem(AIndex: Integer): T;
     procedure setItem(AIndex: Integer; const Value: T);
     function getCount: Integer;
@@ -82,6 +83,7 @@ var
   LRtti: TRttiType;
 begin
   Dest.FFather := nil;
+  Dest.FFatherMethod := nil;
   Dest.FIndex := -1;
   Dest.FRtti := TGenericUtils.rttiType<RArray<T>>(Dest.FRttiContext);
   Dest.createMethod;
@@ -126,12 +128,12 @@ begin
 
   if (LCurrentSize <= AIndex) then { Preventing Error }
   begin
-//    if (FFather <> nil) and (Index <> -1) then
-//    begin
-//      FFatherMethod(Index,AIndex, LPSelf);
-//    end
-//    else
-//      SetLength(FValue, AIndex+1);
+    if (FFather <> nil) and (Index <> -1) then
+    begin
+      FFatherMethod(Index,AIndex, LPSelf);
+    end
+    else
+      SetLength(FValue, AIndex+1);
 
     if (FRArraySon) then { Its a RArray? }
     begin
@@ -139,6 +141,7 @@ begin
       begin
         { Make the childrens recognize the father and your positions }
         TGenericUtils.setFieldValue<T,Pointer>(@AItem,'FFather', LPSelf);
+        TGenericUtils.setFieldValue<T,TProc<Integer, Integer, Pointer>>(@AItem, 'FFatherMethod', LMethod);
         TGenericUtils.setFieldValue<T,Integer>(@AItem,'FIndex', AItemIndex);
       end);
     end;
@@ -146,4 +149,3 @@ begin
 end;
 
 end.
-

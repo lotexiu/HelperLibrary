@@ -107,10 +107,12 @@ begin
 end;
 
 procedure TApp.Listen;
+var LList: TArray<TAppAPI>;
 begin
   FHorse.Listen;
-  TArrayUtils.forEach<TAppAPI>(FAPIList.Values<TAppAPI>,
-  procedure(API: TAppAPI; out ABreak: Boolean)
+  LList := FAPIList.Values<TAppAPI>;
+  TArrayUtils.forEach<TAppAPI>(LList,
+  procedure(out API: TAppAPI; out ABreak: Boolean)
   begin
     API.buildSwaggerData;
   end);
@@ -144,7 +146,7 @@ end;
 class procedure TApp._Destroy;
 begin
   TArrayUtils.forEach<TApp>(APPList,
-  procedure(APP: TApp; out ABreak: Boolean)
+  procedure(out APP: TApp; out ABreak: Boolean)
   begin
     if (not TGenericUtils.isEmptyOrNull(APP)) then
       TGenericUtils.freeAndNil(APP);

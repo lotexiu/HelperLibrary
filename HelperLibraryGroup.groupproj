@@ -3,9 +3,6 @@
         <ProjectGuid>{A77A06C8-936F-4883-BAFD-24322E7F94DE}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="HelperLibraryDLL.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="HelperLibraryPackage.dproj">
             <Dependencies/>
         </Projects>
@@ -20,15 +17,6 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="HelperLibraryDLL">
-        <MSBuild Projects="HelperLibraryDLL.dproj"/>
-    </Target>
-    <Target Name="HelperLibraryDLL:Clean">
-        <MSBuild Projects="HelperLibraryDLL.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="HelperLibraryDLL:Make">
-        <MSBuild Projects="HelperLibraryDLL.dproj" Targets="Make"/>
-    </Target>
     <Target Name="HelperLibraryPackage">
         <MSBuild Projects="HelperLibraryPackage.dproj"/>
     </Target>
@@ -48,13 +36,13 @@
         <MSBuild Projects="..\CustomAPI\CustomAPI.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="HelperLibraryDLL;HelperLibraryPackage;CustomAPI"/>
+        <CallTarget Targets="HelperLibraryPackage;CustomAPI"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HelperLibraryDLL:Clean;HelperLibraryPackage:Clean;CustomAPI:Clean"/>
+        <CallTarget Targets="HelperLibraryPackage:Clean;CustomAPI:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HelperLibraryDLL:Make;HelperLibraryPackage:Make;CustomAPI:Make"/>
+        <CallTarget Targets="HelperLibraryPackage:Make;CustomAPI:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

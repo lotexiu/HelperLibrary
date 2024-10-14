@@ -185,7 +185,7 @@ initialization
 
 finalization
   TArrayUtils.forEach<TAppAPI>(TAppAPI.APIList,
-  procedure(API: TAppAPI; out ABreak: Boolean)
+  procedure(out API: TAppAPI; out ABreak: Boolean)
   begin
     if (not TGenericUtils.isEmptyOrNull(API)) then
       TGenericUtils.freeAndNil(API);

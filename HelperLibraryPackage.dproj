@@ -132,6 +132,7 @@
         <DCCReference Include="src\rest\UApp.pas"/>
         <DCCReference Include="src\rest\api\UAppAPI.pas"/>
         <DCCReference Include="src\rest\api\UAppAPIRequest.pas"/>
+        <DCCReference Include="src\generic\UGenericObject.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -108,24 +108,24 @@ end;
 
 class function TWindowsUtils.closeHandle(AFileName: String): Boolean;
 var
-  FList: TList<SystemHandle>;
-  FResult: Boolean;
+  LList: TList<SystemHandle>;
+  LResult: Boolean;
 begin
-  FResult := False;
-  FList := getHandles;
-  TArrayUtils.forEach<SystemHandle>(FList,
-  procedure(ASystemHandle: SystemHandle; out ABreak: Boolean)
+  LResult := False;
+  LList := getHandles;
+  TArrayUtils.forEach<SystemHandle>(LList,
+  procedure(out ASystemHandle: SystemHandle; out ABreak: Boolean)
   var
     FFileName: String;
   begin
     FFileName := getFileName(ASystemHandle.Handle);
     if AFileName = FFileName then
     begin
-      FResult := closeHandle(ASystemHandle);
+      LResult := closeHandle(ASystemHandle);
       ABreak := True;
     end;
   end);
-  Result := FResult;
+  Result := LResult;
 end;
 
 class function TWindowsUtils.closeHandle(AHandle: SystemHandle): Boolean;

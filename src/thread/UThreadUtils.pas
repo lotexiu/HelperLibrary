@@ -58,12 +58,12 @@ end;
 
 class procedure TThreadUtils._Destroy;
 var
-  FList: TArray<TThreadData>;
+  LList: TArray<TThreadData>;
 begin
-  FList := TThreadUtils.FDictionary.Values<TThreadData>;
+  LList := TThreadUtils.FDictionary.Values<TThreadData>;
   {Waiting for closing all threads}
-  TArrayUtils.forEach<TThreadData>(FList,
-  procedure(AValue: TThreadData; out ABreak: Boolean)
+  TArrayUtils.forEach<TThreadData>(LList,
+  procedure(out AValue: TThreadData; out ABreak: Boolean)
   begin
     AValue.Loop := False; {Disable Loop}
     AValue.MaxThreadsRunning := 0; {Max Threads to 0}

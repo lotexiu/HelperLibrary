@@ -125,7 +125,7 @@ begin
   if Length(FList) > 0 then
   begin
     TArrayUtils.forEach<TCustomAttribute>(FList,
-    procedure(AValue: TCustomAttribute; AIndex: Integer; out ABreak: Boolean)
+    procedure(out AValue: TCustomAttribute; AIndex: Integer; out ABreak: Boolean)
     var
       FField: TRttiProperty;
     begin
