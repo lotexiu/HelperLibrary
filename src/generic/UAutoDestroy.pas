@@ -16,9 +16,8 @@ type
   }
   EValueState = (
     null,   {You can use normally}
-    filled, {Shouldn't be used}
     empty,  {Shouldn't be used}
-    nill    {Shouldn't be used}
+    filled {Shouldn't be used}
   );
 
   {Just an interface}
