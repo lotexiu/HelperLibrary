@@ -32,7 +32,7 @@ type
     function getPair<T>(AKey: String): TPair<string, T>; overload;
 
     procedure add<T>(AKey: String; AValue:T);
-    procedure remove<T>(AKey: String);
+    function remove<T>(AKey: String): T;
 
     function containsKey(AKey: String): Boolean;
     function containsValue<T>(AValue: T): Boolean;
@@ -164,8 +164,9 @@ begin
   end);
 end;
 
-procedure TGenericDictionary.remove<T>(AKey: String);
+function TGenericDictionary.remove<T>(AKey: String): T;
 begin
+  Result := get<T>(AKey);
   FDictionary.Remove(AKey);
 end;
 

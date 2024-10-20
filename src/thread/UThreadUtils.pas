@@ -23,6 +23,7 @@ type
   public
     class procedure addThreadData(AThreadData: TThreadData); overload;
     class function getThreadData(AKey: String): TThreadData; overload;
+    class procedure DestroyThread(AKey: String);
 
     { Data Share }
     class procedure onThread<T>(AData: T; AProc: TProc<T>); overload;
@@ -125,6 +126,11 @@ end;
 class procedure TThreadUtils.addThreadData(AThreadData: TThreadData);
 begin
   FDictionary.add<TThreadData>(AThreadData.ThreadType, AThreadData);
+end;
+
+class procedure TThreadUtils.DestroyThread(AKey: String);
+begin
+  FDictionary.remove<TThreadData>(AKey).Free;
 end;
 
 class function TThreadUtils.getThreadData(AKey: String): TThreadData;

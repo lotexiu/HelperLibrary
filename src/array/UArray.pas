@@ -9,36 +9,51 @@ uses
   SysUtils,
   UArrayReferences;
 
-var
-  xArrayLogs: Boolean = False;
-
 type
-  RArray<T> = record
+
+  ESortBy = (
+    E_OriginalOrder,
+    E_Reverse,
+    E_Pointer,
+    E_Alphabet,
+    E_CreationDate,
+    E_AddtionDate,
+    E_Custom
+  );
+
+  TArray<T> = class
   private
-    { son fields }
-    FIndex: Integer;
-    FFather: Pointer;
-    { fields }
-    FValue: _array<T>;
-    FRttiContext: TRttiContext;
-    FRtti: TRttiType;
-    FMethod: TProc<Integer, Integer, Pointer>;
-    FRArraySon: Boolean;
+    FAvarage: Double;
+    FEnableRegistry: Boolean;
+    FDestroyItems: Boolean;
+    FFirstAddedValue: T;
+    FRegistry: TArray<String>;
+    FArray: _array<T>;
+    FLastAddedValue: T;
+    function doPagination(ASize, APage: Integer): TArray<T>;
+    function getCount: Integer;
     function getItem(AIndex: Integer): T;
     procedure setItem(AIndex: Integer; const Value: T);
-    function getCount: Integer;
-    procedure updateChildrens(AIndex: Integer);
-
-    procedure createMethod;
+//    function doPages(ASize: Integer): TArray<TArray<T>>;
   public
-    class operator Initialize (out Dest: RArray<T>);
-    class operator Finalize (var Dest: RArray<T>);
 
-    property &Index: Integer read FIndex;
-    property Item[Index: Integer]: T read getItem write setItem; default;
+    property Item[AIndex: Integer]: T read getItem write setItem; default;
     property Count: Integer read getCount;
+    property DestroyItems: Boolean read FDestroyItems write FDestroyItems;
+    property &Array: _array<T> read FArray;
+    property LastAddedValue: T read FLastAddedValue;
+    property FirstAddedValue: T read FFirstAddedValue;
 
-    procedure forEach(AProc: TForEachIndex<T>); overload;
+    property Pagination[ASize, APage: Integer]: TArray<T> read doPagination;
+
+    property SizeAvarage: Double read FAvarage;
+    {FAvarage := CurrentSize / TotalChanges}
+
+    property Registry: TArray<String> read FRegistry;
+    property EnableRegistry: Boolean read FEnableRegistry;
+
+
+
   end;
 
 implementation
@@ -46,103 +61,30 @@ implementation
 uses
   StrUtils,
   UGenericUtils,
-  UArrayUtils;
+  UArrayUtils,
+  UThreadUtils,
+  Classes;
 
-{ RArray<T> }
+{ TArray<T> }
 
-procedure RArray<T>.createMethod;
-var
-  LSelf: Pointer;
+function TArray<T>.doPagination(ASize, APage: Integer): TArray<T>;
 begin
-  LSelf := @Self;
-  FMethod := procedure(AIndex, AIndex2: Integer; ASon: Pointer)
-  var
-    LRContext: TRttiContext;
-    LField: TRttiField;
-    LValue: TValue;
-    LSelf2: RArray<T>;
-    LArrayPointer: Pointer;
-  begin
-    LSelf2 := RArray<T>((LSelf)^);
-    LField := TGenericUtils.rttiType<T>(LRContext).GetField('FValue');
-    LValue := LField.GetValue(ASon);
-    LArrayPointer := LValue.GetReferenceToRawData;
-    DynArraySetLength(LArrayPointer,LField.FieldType.Handle,1,@AIndex2);
-    LRContext.Free;
-  end;
+
 end;
 
-class operator RArray<T>.Finalize(var Dest: RArray<T>);
+function TArray<T>.getCount: Integer;
 begin
-  Dest.FRttiContext.Free;
+  Result := Length(FArray);
 end;
 
-class operator RArray<T>.Initialize(out Dest: RArray<T>);
-var
-  LRtti: TRttiType;
+function TArray<T>.getItem(AIndex: Integer): T;
 begin
-  Dest.FFather := nil;
-  Dest.FIndex := -1;
-  Dest.FRtti := TGenericUtils.rttiType<RArray<T>>(Dest.FRttiContext);
-  Dest.createMethod;
-  LRtti := TGenericUtils.rttiType<T>;
-  if (LRtti.IsRecord) and (ContainsText(TGenericUtils.typeName<T>, 'RArray')) then
-    Dest.FRArraySon := True;
+  Result := FArray[AIndex];
 end;
 
-procedure RArray<T>.forEach(AProc: TForEachIndex<T>);
+procedure TArray<T>.setItem(AIndex: Integer; const Value: T);
 begin
-  TArrayUtils.forEach<T>(@FValue,AProc);
-end;
-
-function RArray<T>.getCount: Integer;
-begin
-  Result := Length(FValue);
-end;
-
-function RArray<T>.getItem(AIndex: Integer): T;
-begin
-  updateChildrens(AIndex);
-  Result := FValue[AIndex];
-end;
-
-procedure RArray<T>.setItem(AIndex: Integer; const Value: T);
-begin
-  updateChildrens(AIndex);
-  FValue[AIndex] := Value;
-end;
-
-procedure RArray<T>.updateChildrens(AIndex: Integer);
-var
-  LCurrentSize: Integer;
-  LPSelf: Pointer;
-  LMethod: TProc<Integer, Integer, Pointer>;
-  LRtti: TRttiType;
-  LValue: TValue;
-begin
-  LCurrentSize := Count;
-  LPSelf := @Self;
-  LMethod := FMethod;
-
-  if (LCurrentSize <= AIndex) then { Preventing Error }
-  begin
-//    if (FFather <> nil) and (Index <> -1) then
-//    begin
-//      FFatherMethod(Index,AIndex, LPSelf);
-//    end
-//    else
-//      SetLength(FValue, AIndex+1);
-
-    if (FRArraySon) then { Its a RArray? }
-    begin
-      forEach(procedure(out AItem: T; AItemIndex: Integer)
-      begin
-        { Make the childrens recognize the father and your positions }
-        TGenericUtils.setFieldValue<T,Pointer>(@AItem,'FFather', LPSelf);
-        TGenericUtils.setFieldValue<T,Integer>(@AItem,'FIndex', AItemIndex);
-      end);
-    end;
-  end;
+  FArray[AIndex] := Value;
 end;
 
 end.

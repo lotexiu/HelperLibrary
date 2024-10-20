@@ -8,8 +8,7 @@ uses
   UJSONException,
   StrUtils,
   SysUtils,
-  UGenericUtils,
-  UStringUtils;
+  UGenericFunctions;
 
 type
   TJSONUtils = class
@@ -31,6 +30,10 @@ type
   end;
 
 implementation
+
+uses
+  UGenericUtils,
+  UStringUtils;
 
 { TJSONUtils }
 

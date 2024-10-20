@@ -133,6 +133,10 @@
         <DCCReference Include="src\rest\api\UAppAPI.pas"/>
         <DCCReference Include="src\rest\api\UAppAPIRequest.pas"/>
         <DCCReference Include="src\generic\UGenericObject.pas"/>
+        <DCCReference Include="src\generic\URtti.pas"/>
+        <DCCReference Include="src\generic\UAutoDestroy.pas"/>
+        <DCCReference Include="src\enum\UDirection.pas"/>
+        <DCCReference Include="src\generic\UGenericFunctions.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

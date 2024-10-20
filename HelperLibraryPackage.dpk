@@ -63,6 +63,10 @@ contains
   UApp in 'src\rest\UApp.pas',
   UAppAPI in 'src\rest\api\UAppAPI.pas',
   UAppAPIRequest in 'src\rest\api\UAppAPIRequest.pas',
-  UGenericObject in 'src\generic\UGenericObject.pas';
+  UGenericObject in 'src\generic\UGenericObject.pas',
+  URtti in 'src\generic\URtti.pas',
+  UAutoDestroy in 'src\generic\UAutoDestroy.pas',
+  UDirection in 'src\enum\UDirection.pas',
+  UGenericFunctions in 'src\generic\UGenericFunctions.pas';
 
 end.

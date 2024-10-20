@@ -9,14 +9,6 @@ uses
   Generics.Collections;
 
 type
-  TFunc<T> = reference to function: T;
-  TFunc1P<T> = reference to function(AValue: T): T;
-  TFunc1P<T,R> = reference to function(AValue: T): R;
-  TFunc2P<T,R> = reference to function(AValue, AValue2: T): R;
-  TFunc2P<T,T2,R> = reference to function(AValue: T; AValue2: T2): R;
-
-  TProcObj = procedure of object;
-
   TGenericArray = TArray<TValue>;
   TGenericRange = 0 .. 255;
 
@@ -47,6 +39,8 @@ type
 
     class function defaultFunc<T>: TFunc<T>;
     class function defaultProc: TProc;
+
+    class function compare<T>(AValue, AValue2: T): Integer; overload;
 
     class function equals<T>(AValue, AValue2: T): Boolean; overload;
     class function equals<T>(AValue: T): Boolean; overload;
@@ -136,6 +130,13 @@ end;
 class function TGenericUtils.castTo<R>(Avalue: Pointer): R;
 begin
   Result := R(AValue^);
+end;
+
+class function TGenericUtils.compare<T>(AValue, AValue2: T): Integer;
+var LCompare: IComparer<T>;
+begin
+  LCompare := TComparer<T>.Default;
+  Result := LCompare.Compare(AValue, AValue2);
 end;
 
 class function TGenericUtils.callMethod(ARtti: TRttiType; AObj: Pointer;
