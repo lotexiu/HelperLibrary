@@ -69,10 +69,8 @@ type
   private
     FValue: IAD<T>;
     FRtti: TRttiType;
-    FContext: TRttiContext;
-    function getValue: T;
-    procedure setValue(const Value: T);
-    procedure updateRtti;
+    FContext: IAD<TRttiContext>;
+    function getRtti: TRttiType;
   public
     class operator Implicit(AValue: IAD<Variant>): RAD<T>;
     class operator Implicit(AValue: EValueState): RAD<T>;
@@ -87,8 +85,13 @@ type
     class operator GreaterThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
     class operator LessThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
 
-    property Rtti: TRttiType read FRtti;
-    property I: T read getValue write setValue;
+    property Rtti: TRttiType read getRtti;
+    function  I: T; overload;
+    procedure I(AValue: T); overload;
+    procedure I(AValue: EValueState); overload;
+
+    procedure setValue<TField>(AProperty: String; AValue: TField);
+    function  getValue<TField>(AProperty: String): TField;
   end;
 
 function AD(AValue:Variant): IAD<Variant>;
@@ -138,7 +141,7 @@ procedure TAutoDestroy<T>.setValue(const AValue: EValueState);
 begin
   FTValue := Default(T);
   FEValue := AValue;
-  FPValue := @AValue;
+  FPValue := @FTValue;
 end;
 
 procedure TAutoDestroy<T>.setValue(const Value: T);
@@ -165,20 +168,33 @@ end;
 
 { RAD<T> }
 
-function RAD<T>.getValue: T;
+function RAD<T>.getRtti: TRttiType;
+var
+  LContext: TRttiContext;
 begin
-  Result := FValue.getValue;
+  if (FRtti <> nil) then
+  begin
+    FRtti := TGenericUtils.rttiType<T>(LContext);
+    FContext := TAutoDestroy<TRttiContext>.Create(LContext);
+  end;
+  Result := FRtti;
 end;
 
-procedure RAD<T>.setValue(const Value: T);
+function RAD<T>.getValue<TField>(AProperty: String): TField;
+var LValue: T;
 begin
-  FValue.setValue(Value);
+  LValue := FValue.getValue;
+  Result := Rtti.GetProperty(AProperty).GetValue(@LValue).AsType<TField>;
 end;
 
-procedure RAD<T>.updateRtti;
+procedure RAD<T>.setValue<TField>(AProperty: String; AValue: TField);
+var
+  LNewValue: TValue;
+  LValue: T;
 begin
-  FContext.Free;
-  FRtti := TGenericUtils.rttiType<T>(FContext);
+  LNewValue := TValue.From<TField>(AValue);
+  LValue := FValue.getValue;
+  Rtti.GetProperty(AProperty).SetValue(@LValue, LNewValue);
 end;
 
 { Implicit }
@@ -197,18 +213,31 @@ end;
 class operator RAD<T>.Implicit(AValue: IAD<Variant>): RAD<T>;
 begin
   Result.FValue := AValue as IAD<T>;
-//  Result.updateRtti;
 end;
 
 class operator RAD<T>.Implicit(AValue: T): RAD<T>;
 begin
   Result.FValue := TAutoDestroy<T>.Create(AValue);
-//  Result.updateRtti;
 end;
 
 class operator RAD<T>.Implicit(AValue: RAD<T>): IAD<Variant>;
 begin
   Result := AValue.FValue as IAD<Variant>;
+end;
+
+function RAD<T>.I: T;
+begin
+  Result := FValue.getValue;
+end;
+
+procedure RAD<T>.I(AValue: T);
+begin
+  FValue.setValue(AValue);
+end;
+
+procedure RAD<T>.I(AValue: EValueState);
+begin
+  FValue.setValue(AValue);
 end;
 
 class operator RAD<T>.Implicit(AValue: RAD<T>): T;

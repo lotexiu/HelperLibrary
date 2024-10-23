@@ -66,10 +66,11 @@ begin
   TArrayUtils.forEach<TThreadData>(LList,
   procedure(out AValue: TThreadData; out ABreak: Boolean)
   begin
+    AValue.Interval := 0;
     AValue.Loop := False; {Disable Loop}
-    AValue.MaxThreadsRunning := 0; {Max Threads to 0}
+    AValue.MaxThreadsRunning := -1; {Max Threads to 0}
     while AValue.ThreadRunningCount > 0 do
-      Sleep(50);
+      Sleep(10);
   end);
   FDictionary.FreeValuesOnDestroy := True;
   TGenericUtils.freeAndNil(FDictionary);
@@ -107,14 +108,10 @@ begin
       end;
     end;
     FWatch.Stop; {Stop Watching}
-    FThData.removeThread; {Removing Thread}
-    FThData.addExecutionTime(FWatch.ElapsedMilliseconds); {Add for Avarage}
     TWindowsUtils.cleanAppMemoryFromLeak; {CleanMemory}
-    TThread.CurrentThread.Terminate; {Closing Thread}
-    if FThData.Loop then begin {Is Loop Thread}
-      sleep(FThData.Interval); {Wait Interval}
-      _onThread(FThData, AData, AProc); {Open new Thread}
-    end
+    FThData.StopCurrentThread(FWatch.ElapsedMilliseconds);
+    if FThData.Loop then
+      _onThread(FThData, AData, AProc) { Open new Thread }
     else if FThData.ThreadType = 'global' then
       TGenericUtils.freeAndNil(FThData);
   end).Start;

@@ -504,8 +504,15 @@ begin
 end;
 
 class procedure TGenericUtils.setNil<T>(out AValue: T);
+var
+  PGen: ^T;
+  GenDefault: T;
 begin
-  PPointer(@AValue)^ := nil;
+  GenDefault := Default(T);
+  PGen := @Avalue;
+  PGen^ := GenDefault;
+  Pointer((@PGen)^) := @GenDefault;
+  AValue := GenDefault;
 end;
 
 class function TGenericUtils.tclassOf<T>: TClass;

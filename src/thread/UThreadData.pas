@@ -49,6 +49,7 @@ type
 
     procedure ContinueOnAllClosed;
     procedure WaitToOpen;
+    procedure StopCurrentThread(ATime: Integer);
     procedure Enter;
     procedure Release;
     procedure Clear;
@@ -62,6 +63,9 @@ type
   end;
 
 implementation
+
+uses
+  Classes;
 
 { TThreadData }
 
@@ -158,6 +162,19 @@ begin
                 (ThreadRunningCount >= MaxThreadsRunning);
     sleep(50);
   until not FResult;
+end;
+
+procedure TThreadData.StopCurrentThread(ATime: Integer);
+begin
+  addExecutionTime(ATime);          { Add for Avarage }
+  TThread.CurrentThread.Terminate;  { Closing Thread  }
+  if ((MaxThreadsRunning <> -1) and Loop) then
+  begin
+    sleep(Interval);  { Wait Interval   }
+    removeThread;     { Removing Thread }
+  end
+  else
+    removeThread; {Removing Thread}
 end;
 
 procedure TThreadData.setThreadCount(const Value: Integer);
