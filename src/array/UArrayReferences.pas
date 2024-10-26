@@ -3,7 +3,8 @@ unit UArrayReferences;
 interface
 
 uses
-  Generics.Collections;
+  Generics.Collections,
+  UAutoDestroy;
 
 type
   TForEach<T> = reference to procedure(out AValue: T);
@@ -26,7 +27,7 @@ type
 
   TReduce<T> = reference to function(out AAccumulator: T; ACurrentValue: T): T;
 
-  TSort<T> = reference to function(AAValue, ABValue: T): T;
+  TSort<T> = reference to function(AAValue, ABValue: T): RAD<T>;
 
   _array<T> = array of T;
 

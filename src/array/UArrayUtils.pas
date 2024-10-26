@@ -72,7 +72,8 @@ uses
   SysUtils,
   TypInfo,
   UArrayException,
-  UGenericUtils;
+  UGenericUtils,
+  UAutoDestroy;
 
 { TArrayUtils }
 
@@ -248,8 +249,10 @@ begin
   LList.Free;
 end;
 
-class function TArrayUtils.sort<T>(AList: TArray<T>; AFunc:TSort<T>): TArray<T>;
+class function TArrayUtils.sort<T>(AList: TArray<T>; AFunc: TSort<T>): TArray<T>;
 begin
+  {Tim Sort}
+
 
 end;
 

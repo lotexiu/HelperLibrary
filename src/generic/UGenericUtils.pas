@@ -68,6 +68,7 @@ type
     class function rttiType<T>: TRttiType; overload;
     class function rttiType<T>(out ARttiContext: TRttiContext): TRttiType; overload;
     class function rttiType(ATypeName: String): TRttiType; overload;
+    class function rttiType(AClass: TClass; out ARttiContext: TRttiContext): TRttiType; overload;
     class function rttiType(AClass: TClass): TRttiType; overload;
     class function rttiType(APointer: Pointer): TRttiType; overload;
 
@@ -77,8 +78,9 @@ type
     class procedure setNil<T>(out AValue: T);
 
     class function tclassOf<T>: TClass; overload;
-    class function tclassOf(AQualifiedName: String): TClass; overload;
     class function tclassOf<T:class>(AObject: T): TClass; overload;
+    class function tclassOf(AQualifiedName: String): TClass; overload;
+    class function tclassOf(AObject: TObject): TClass; overload;
     class function tclassOf(APointer: Pointer): TClass; overload;
 
     class function typeName<T>: String; overload;
@@ -451,6 +453,19 @@ begin
   end;
 end;
 
+class function TGenericUtils.rttiType(AClass: TClass;
+  out ARttiContext: TRttiContext): TRttiType;
+begin
+  ARttiContext := TRttiContext.Create;
+  try
+    Result := ARttiContext.GetType(AClass);
+  except
+    if (not isEmptyOrNull(Result)) then
+      freeAndNil(ARttiContext);
+    raise TGenericException.Create('Fail to obtain RttiType from '+AClass.ClassName)
+  end;
+end;
+
 class function TGenericUtils.rttiType(ATypeName: String): TRttiType;
 var
   LRContext: TRttiContext;
@@ -505,13 +520,12 @@ end;
 
 class procedure TGenericUtils.setNil<T>(out AValue: T);
 var
-  PGen: ^T;
+  PGen: Pointer;
   GenDefault: T;
 begin
   GenDefault := Default(T);
   PGen := @Avalue;
-  PGen^ := GenDefault;
-  Pointer((@PGen)^) := @GenDefault;
+  T(PGen^) := GenDefault;
   AValue := GenDefault;
 end;
 
@@ -542,6 +556,11 @@ begin
   LRType := LRContext.GetType(APointer);
   Result := LRType.AsInstance.MetaclassType;
   LRContext.Free;
+end;
+
+class function TGenericUtils.tclassOf(AObject: TObject): TClass;
+begin
+  Result := AObject.ClassType;
 end;
 
 class function TGenericUtils.tclassOf<T>(AObject: T): TClass;

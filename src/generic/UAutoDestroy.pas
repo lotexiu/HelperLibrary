@@ -85,13 +85,13 @@ type
     class operator GreaterThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
     class operator LessThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
 
-    property Rtti: TRttiType read getRtti;
+    property RttiType: TRttiType read getRtti;
     function  I: T; overload;
     procedure I(AValue: T); overload;
     procedure I(AValue: EValueState); overload;
 
-    procedure setValue<TField>(AProperty: String; AValue: TField);
-    function  getValue<TField>(AProperty: String): TField;
+    procedure setValue<T2>(AProperty: String; AValue: T2);
+    function  getValue<T2>(AProperty: String): T2;
   end;
 
 function AD(AValue:Variant): IAD<Variant>;
@@ -171,8 +171,43 @@ end;
 function RAD<T>.getRtti: TRttiType;
 var
   LContext: TRttiContext;
+  LIsObject: Boolean;
+  LType, LType2: String;
+  LObj: TObject;
 begin
-  if (FRtti <> nil) then
+  LIsObject := TGenericUtils.isObject<T>;
+
+  if LIsObject then
+  begin
+    if (FRtti = nil) then
+    begin
+      if FValue.getState = null then
+        FRtti := TGenericUtils.rttiType<T>(LContext)
+      else
+      begin
+        LObj := TObject((@FValue.getValue)^);
+        FRtti := TGenericUtils.rttiType(LObj.ClassType, LContext);
+      end;
+      FContext := TAutoDestroy<TRttiContext>.Create(LContext);
+    end
+    else
+    begin
+      LType := FRtti.AsInstance.MetaclassType.ClassName;
+      if FValue.getState = null then
+        LType2 := TGenericUtils.tclassOf<T>.ClassName
+      else
+      begin
+        LObj := TObject((@FValue.getValue)^);
+        LType2 := LObj.ClassName;
+      end;
+      if LType <> LType2 then
+      begin
+        FRtti := nil;
+        FRtti := getRtti;
+      end;
+    end;
+  end
+  else if (FRtti = nil) then
   begin
     FRtti := TGenericUtils.rttiType<T>(LContext);
     FContext := TAutoDestroy<TRttiContext>.Create(LContext);
@@ -180,21 +215,24 @@ begin
   Result := FRtti;
 end;
 
-function RAD<T>.getValue<TField>(AProperty: String): TField;
-var LValue: T;
+function RAD<T>.getValue<T2>(AProperty: String): T2;
+var
+  LValue: Pointer;
 begin
-  LValue := FValue.getValue;
-  Result := Rtti.GetProperty(AProperty).GetValue(@LValue).AsType<TField>;
+  LValue := TGenericUtils.castTo<Pointer, T>(FValue.getValue);
+  if (FValue.getState <> null) then
+    Result := RttiType.GetProperty(AProperty)
+      .GetValue(LValue).AsType<T2>;
 end;
 
-procedure RAD<T>.setValue<TField>(AProperty: String; AValue: TField);
+procedure RAD<T>.setValue<T2>(AProperty: String; AValue: T2);
 var
   LNewValue: TValue;
-  LValue: T;
+  LValue: Pointer;
 begin
-  LNewValue := TValue.From<TField>(AValue);
-  LValue := FValue.getValue;
-  Rtti.GetProperty(AProperty).SetValue(@LValue, LNewValue);
+  LNewValue := TValue.From<T2>(AValue);
+  LValue := TGenericUtils.castTo<Pointer, T>(FValue.getValue);
+  RttiType.GetProperty(AProperty).SetValue(LValue, LNewValue);
 end;
 
 { Implicit }
@@ -253,7 +291,7 @@ begin
   LANil := AAValue.FValue.getState;
   LANil2 := ABValue.FValue.getState;
   Result := (LANil = LANil2);
-  if Result and (LANil = filled) then  
+  if Result and (LANil = filled) then
     Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = 0;
 end;
 
@@ -268,7 +306,7 @@ begin
   LANil := TEnum<EValueState>(AAValue.FValue.getState).Index;
   LANil2 := TEnum<EValueState>(ABValue.FValue.getState).Index;
   Result := (LANil > LANil2);
-  if (not Result) and (LANil = LANil2) and (LANil = 1) then   
+  if (not Result) and (LANil = LANil2) and (LANil = 1) then
     Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = 1;
 end;
 
@@ -278,7 +316,7 @@ begin
   LANil := TEnum<EValueState>(AAValue.FValue.getState).Index;
   LANil2 := TEnum<EValueState>(ABValue.FValue.getState).Index;
   Result := (LANil < LANil2);
-  if (not Result) and (LANil = LANil2) and (LANil = 1) then   
+  if (not Result) and (LANil = LANil2) and (LANil = 1) then
     Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = -1;
 end;
 
