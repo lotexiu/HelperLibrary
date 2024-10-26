@@ -69,11 +69,13 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   TypInfo,
   UArrayException,
   UGenericUtils,
-  UAutoDestroy;
+  UAutoDestroy,
+  UEasyImport;
 
 { TArrayUtils }
 
@@ -106,7 +108,7 @@ end;
 class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEachIndex<T>);
 begin
   forEach<T>(AList,
-  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  procedure(var AItem: T; AIndex: Integer; out ABreak: Boolean)
   begin
     AProc(AItem, AIndex);
   end);
@@ -115,7 +117,7 @@ end;
 class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEachBreak<T>);
 begin
   forEach<T>(AList,
-  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  procedure(var AItem: T; AIndex: Integer; out ABreak: Boolean)
   begin
     AProc(AItem, ABreak);
   end);
@@ -124,7 +126,7 @@ end;
 class procedure TArrayUtils.forEach<T>(AList: Pointer; AProc: TForEach<T>);
 begin
   forEach<T>(AList,
-  procedure(out AItem: T; AIndex: Integer; out ABreak: Boolean)
+  procedure(var AItem: T; AIndex: Integer; out ABreak: Boolean)
   begin
     AProc(AItem);
   end);
@@ -203,7 +205,7 @@ class function TArrayUtils.map<T, R>(AList: TArray<T>;
 var LList: TList<R>;
 begin
   LList := TList<R>.Create;
-  forEach<T>(AList, procedure(out AItem: T)
+  forEach<T>(AList, procedure(var AItem: T)
   begin
     LList.Add(AFunc(AItem));
   end);
@@ -216,7 +218,7 @@ class function TArrayUtils.map<T, R>(AList: TArray<T>;
 var LList: TList<R>;
 begin
   LList := TList<R>.Create;
-  forEach<T>(AList, procedure(out AItem: T; AIndex: Integer)
+  forEach<T>(AList, procedure(var AItem: T; AIndex: Integer)
   begin
     LList.Add(AFunc(AItem, AIndex));
   end);
@@ -228,7 +230,7 @@ class function TArrayUtils.map<T>(AList: TArray<T>; AFunc: TMap<T>): TArray<T>;
 var LList: TList<T>;
 begin
   LList := TList<T>.Create;
-  forEach<T>(AList, procedure(out AItem: T)
+  forEach<T>(AList, procedure(var AItem: T)
   begin
     LList.Add(AFunc(AItem));
   end);
@@ -241,7 +243,7 @@ class function TArrayUtils.map<T>(AList: TArray<T>;
 var LList: TList<T>;
 begin
   LList := TList<T>.Create;
-  forEach<T>(AList, procedure(out AItem: T; AIndex: Integer)
+  forEach<T>(AList, procedure(var AItem: T; AIndex: Integer)
   begin
     LList.Add(AFunc(AItem, AIndex));
   end);
@@ -250,10 +252,35 @@ begin
 end;
 
 class function TArrayUtils.sort<T>(AList: TArray<T>; AFunc: TSort<T>): TArray<T>;
+var
+  LNumberList: TArray<Integer>;
+  LNewListR: TArray<RAD<T>>;
+  LNewList: TArray<T>;
+  LSize, LLow, LHigh: RAD<Integer>;
 begin
-  {Tim Sort}
+  LLow := null;
+  LHigh := null;
+  LSize := Length(AList);
+  SetLength(LNumberList, LSize);
+  SetLength(LNewList, LSize);
 
+  forEach<T>(AList,procedure(var AItem: T; AIndex: Integer)
+  var LValue: Integer;
+  begin
+    LValue := AFunc(AItem); {Value converted into Integer}
+    LNumberList[AIndex] := LValue; {Adding Integer Value into NumberList}
+    LLow  := TGenU.ifThen<Integer>((LLow = null ) or (LLow > LValue ), LValue, LLow);
+    LHigh := TGenU.ifThen<Integer>((LHigh = null) or (LHigh < LValue), LValue, LHigh);
+  end);
 
+  forEach<Integer>(LNumberList,procedure(var AValue: Integer; AIndex: Integer)
+  var LPos: Integer;
+  begin
+//    LPos := Ceil(((AValue-LLow)*(LSize-1))/(LHigh-LLow));
+//    while LNewList[LPos] <> null do
+//      Dec(LPos);
+    LNewList[LPos] := AList[AIndex];
+  end);
 end;
 
 class function TArrayUtils.filter<T>(AList: TArray<T>; AFunc:TFilter<T>): TArray<T>;

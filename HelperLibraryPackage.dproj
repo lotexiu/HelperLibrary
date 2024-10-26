@@ -88,6 +88,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_DcuOutput>$(OUT)</DCC_DcuOutput>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_Release>8</VerInfo_Release>
+        <VerInfo_Build>47</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.8.47;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -129,14 +133,15 @@
         <DCCReference Include="src\time\UTimeUtils.pas"/>
         <DCCReference Include="src\json\UJSONException.pas"/>
         <DCCReference Include="src\string\UStringUtils.pas"/>
-        <DCCReference Include="src\rest\UApp.pas"/>
-        <DCCReference Include="src\rest\api\UAppAPI.pas"/>
-        <DCCReference Include="src\rest\api\UAppAPIRequest.pas"/>
         <DCCReference Include="src\generic\UGenericObject.pas"/>
         <DCCReference Include="src\generic\URtti.pas"/>
         <DCCReference Include="src\generic\UAutoDestroy.pas"/>
         <DCCReference Include="src\enum\UDirection.pas"/>
         <DCCReference Include="src\generic\UGenericFunctions.pas"/>
+        <DCCReference Include="src\UEasyImport.pas"/>
+        <DCCReference Include="src\operation\UTOperation.pas"/>
+        <DCCReference Include="src\operation\UOperationException.pas"/>
+        <DCCReference Include="src\generic\imports\UDictImports.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

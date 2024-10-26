@@ -78,12 +78,25 @@ type
     class operator Implicit(AValue: RAD<T>): IAD<Variant>;
     class operator Implicit(AValue: RAD<T>): T;
 
+    {Assign}
+    class operator Assign(var Dest: RAD<T>; const [ref] Src: RAD<T>);
+    {Assign}
+
+    {Operations}
+    class operator Add(a: RAD<T>; b: RAD<T>): Double;
+    class operator Subtract(a: RAD<T>; b: RAD<T>) : Double;
+    class operator Multiply(a: RAD<T>; b: RAD<T>) : Double;
+    class operator Divide(a: RAD<T>; b: RAD<T>) : Double;
+    {Operations}
+
+    {Compare}
     class operator Equal(AAValue, ABValue: RAD<T>): Boolean;
     class operator NotEqual(AAValue, ABValue: RAD<T>): Boolean;
     class operator GreaterThan(AAValue, ABValue: RAD<T>): Boolean;
     class operator LessThan(AAValue, ABValue: RAD<T>): Boolean;
     class operator GreaterThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
     class operator LessThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
+    {Compare}
 
     property RttiType: TRttiType read getRtti;
     function  I: T; overload;
@@ -101,7 +114,8 @@ implementation
 uses
   SysUtils,
   Generics.Defaults,
-  UGenericUtils,
+  UEasyImport,
+  UTOperation,
   UEnum;
 
 { TAutoDestroy<T> }
@@ -123,7 +137,7 @@ end;
 
 destructor TAutoDestroy<T>.Destroy;
 begin
-  TGenericUtils.freeAndNil<T>(T(FPValue^));
+  TGenU.freeAndNil<T>(T(FPValue^));
   inherited;
 end;
 
@@ -147,11 +161,11 @@ end;
 procedure TAutoDestroy<T>.setValue(const Value: T);
 var LDefault: Boolean;
 begin
-  LDefault := TGenericUtils.isEmptyOrNull<T>(Value);
+  LDefault := TGenU.isEmptyOrNull<T>(Value);
   if LDefault then
   begin
     FTValue := Default(T);
-    if TGenericUtils.isObject<T> then
+    if TGenU.isObject<T> then
       FEValue := null
     else
       FEValue := empty
@@ -163,11 +177,15 @@ begin
   end;
   FPValue := @FTValue;
 end;
-
-
-
+{ TAutoDestroy<T> }
+{
+  //////
+  //////
+  //////
+  //////
+  //////
+}
 { RAD<T> }
-
 function RAD<T>.getRtti: TRttiType;
 var
   LContext: TRttiContext;
@@ -175,18 +193,18 @@ var
   LType, LType2: String;
   LObj: TObject;
 begin
-  LIsObject := TGenericUtils.isObject<T>;
+  LIsObject := TGenU.isObject<T>;
 
   if LIsObject then
   begin
     if (FRtti = nil) then
     begin
       if FValue.getState = null then
-        FRtti := TGenericUtils.rttiType<T>(LContext)
+        FRtti := TGenU.rttiType<T>(LContext)
       else
       begin
         LObj := TObject((@FValue.getValue)^);
-        FRtti := TGenericUtils.rttiType(LObj.ClassType, LContext);
+        FRtti := TGenU.rttiType(LObj.ClassType, LContext);
       end;
       FContext := TAutoDestroy<TRttiContext>.Create(LContext);
     end
@@ -194,7 +212,7 @@ begin
     begin
       LType := FRtti.AsInstance.MetaclassType.ClassName;
       if FValue.getState = null then
-        LType2 := TGenericUtils.tclassOf<T>.ClassName
+        LType2 := TGenU.tclassOf<T>.ClassName
       else
       begin
         LObj := TObject((@FValue.getValue)^);
@@ -209,7 +227,7 @@ begin
   end
   else if (FRtti = nil) then
   begin
-    FRtti := TGenericUtils.rttiType<T>(LContext);
+    FRtti := TGenU.rttiType<T>(LContext);
     FContext := TAutoDestroy<TRttiContext>.Create(LContext);
   end;
   Result := FRtti;
@@ -219,7 +237,7 @@ function RAD<T>.getValue<T2>(AProperty: String): T2;
 var
   LValue: Pointer;
 begin
-  LValue := TGenericUtils.castTo<Pointer, T>(FValue.getValue);
+  LValue := TGenU.castTo<Pointer, T>(FValue.getValue);
   if (FValue.getState <> null) then
     Result := RttiType.GetProperty(AProperty)
       .GetValue(LValue).AsType<T2>;
@@ -231,11 +249,12 @@ var
   LValue: Pointer;
 begin
   LNewValue := TValue.From<T2>(AValue);
-  LValue := TGenericUtils.castTo<Pointer, T>(FValue.getValue);
+  LValue := TGenU.castTo<Pointer, T>(FValue.getValue);
   RttiType.GetProperty(AProperty).SetValue(LValue, LNewValue);
 end;
 
-{ Implicit }
+  { Implicit }
+    { EValueState -> RAD<T> }
 class operator RAD<T>.Implicit(AValue: EValueState): RAD<T>;
 var LEnum: TEnum<EValueState>;
 begin
@@ -247,44 +266,80 @@ begin
   end;
   Result.FValue := TAutoDestroy<T>.Create(AValue);
 end;
-
+    { IAD<Variant> -> RAD<T> }
 class operator RAD<T>.Implicit(AValue: IAD<Variant>): RAD<T>;
 begin
   Result.FValue := AValue as IAD<T>;
 end;
-
+    { T -> RAD<T> }
 class operator RAD<T>.Implicit(AValue: T): RAD<T>;
 begin
   Result.FValue := TAutoDestroy<T>.Create(AValue);
 end;
-
+    { RAD<T> -> IAD<Variant> }
 class operator RAD<T>.Implicit(AValue: RAD<T>): IAD<Variant>;
 begin
   Result := AValue.FValue as IAD<Variant>;
 end;
-
-function RAD<T>.I: T;
-begin
-  Result := FValue.getValue;
-end;
-
-procedure RAD<T>.I(AValue: T);
-begin
-  FValue.setValue(AValue);
-end;
-
-procedure RAD<T>.I(AValue: EValueState);
-begin
-  FValue.setValue(AValue);
-end;
-
+    { RAD<T> -> RAD<T> }
 class operator RAD<T>.Implicit(AValue: RAD<T>): T;
 begin
   Result := AValue.FValue.getValue;
 end;
-{ Implicit }
+  { Implicit }
 
-{ Compare }
+  { I }
+function RAD<T>.I: T;
+begin
+  Result := FValue.getValue;
+end;
+procedure RAD<T>.I(AValue: T);
+begin
+  if (FValue = nil) then
+    FValue := TAutoDestroy<T>.Create(AValue)
+  else
+    FValue.setValue(AValue);
+end;
+procedure RAD<T>.I(AValue: EValueState);
+begin
+  if (FValue = nil) then
+    FValue := TAutoDestroy<T>.Create(AValue)
+  else
+    FValue.setValue(AValue);
+end;
+  { I }
+
+  { Assign }
+  class operator RAD<T>.Assign(var Dest: RAD<T>; const [ref] Src: RAD<T>);
+begin
+  if Src.FValue.getState = null then
+    Dest.I(null)
+  else
+    Dest.I(Src.I);
+end;
+  { Assign }
+
+  { Operations }
+class operator RAD<T>.Add(a, b: RAD<T>): Double;
+begin
+  Result := TOperations.get<T>('Default').Add(A,B);
+end;
+class operator RAD<T>.Subtract(a, b: RAD<T>): Double;
+begin
+  Result := TOperations.get<T>('Default').Subtract(A,B);
+end;
+class operator RAD<T>.Multiply(a, b: RAD<T>): Double;
+begin
+  Result := TOperations.get<T>('Default').Multiply(A,B);
+end;
+class operator RAD<T>.Divide(a, b: RAD<T>): Double;
+begin
+  Result := TOperations.get<T>('Default').Divide(A,B);
+end;
+  { Operations}
+
+  { Compare }
+    { Equal }
 class operator RAD<T>.Equal(AAValue, ABValue: RAD<T>): Boolean;
 var LANil,LANil2: EValueState;
 begin
@@ -292,43 +347,45 @@ begin
   LANil2 := ABValue.FValue.getState;
   Result := (LANil = LANil2);
   if Result and (LANil = filled) then
-    Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = 0;
+    Result := TGenU.compare<T>(AAValue.I, ABValue.I) = 0;
 end;
-
+    { NotEqual }
 class operator RAD<T>.NotEqual(AAValue, ABValue: RAD<T>): Boolean;
 begin
   Result := not (AAValue = ABValue);
 end;
-
+    { GreaterThan }
 class operator RAD<T>.GreaterThan(AAValue, ABValue: RAD<T>): Boolean;
 var LANil,LANil2: Integer;
 begin
   LANil := TEnum<EValueState>(AAValue.FValue.getState).Index;
   LANil2 := TEnum<EValueState>(ABValue.FValue.getState).Index;
   Result := (LANil > LANil2);
-  if (not Result) and (LANil = LANil2) and (LANil = 1) then
-    Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = 1;
+  if (not Result) and (LANil = LANil2) and (LANil = 2) then
+    Result := TGenU.compare<T>(AAValue.I, ABValue.I) = 1;
 end;
-
+    { LessThan }
 class operator RAD<T>.LessThan(AAValue, ABValue: RAD<T>): Boolean;
 var LANil,LANil2: Integer;
 begin
   LANil := TEnum<EValueState>(AAValue.FValue.getState).Index;
   LANil2 := TEnum<EValueState>(ABValue.FValue.getState).Index;
   Result := (LANil < LANil2);
-  if (not Result) and (LANil = LANil2) and (LANil = 1) then
-    Result := TGenericUtils.compare<T>(AAValue.I, ABValue.I) = -1;
+  if (not Result) and (LANil = LANil2) and (LANil = 2) then
+    Result := TGenU.compare<T>(AAValue.I, ABValue.I) = -1;
 end;
-
+    { GreaterThanOrEqual }
 class operator RAD<T>.GreaterThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
 begin
   Result := (AAValue = ABValue) and (AAValue > ABValue);
 end;
-
+    { LessThanOrEqual }
 class operator RAD<T>.LessThanOrEqual(AAValue, ABValue: RAD<T>): Boolean;
 begin
   Result := (AAValue = ABValue) and (AAValue < ABValue);
 end;
-{ Compare }
+  { Compare }
+{ RAD<T> }
+
 
 end.

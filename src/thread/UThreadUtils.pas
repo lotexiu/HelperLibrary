@@ -64,7 +64,7 @@ begin
   LList := TThreadUtils.FDictionary.Values<TThreadData>;
   {Waiting for closing all threads}
   TArrayUtils.forEach<TThreadData>(LList,
-  procedure(out AValue: TThreadData; out ABreak: Boolean)
+  procedure(var AValue: TThreadData; out ABreak: Boolean)
   begin
     AValue.Interval := 0;
     AValue.Loop := False; {Disable Loop}

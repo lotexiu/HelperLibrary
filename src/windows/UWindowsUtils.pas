@@ -114,7 +114,7 @@ begin
   LResult := False;
   LList := getHandles;
   TArrayUtils.forEach<SystemHandle>(LList,
-  procedure(out ASystemHandle: SystemHandle; out ABreak: Boolean)
+  procedure(var ASystemHandle: SystemHandle; out ABreak: Boolean)
   var
     FFileName: String;
   begin

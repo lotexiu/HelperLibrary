@@ -88,7 +88,7 @@ initialization
 
 finalization
   TArrayUtils.forEach<TAppAPIRequest>(TAppAPIRequest.APIRequestList,
-  procedure(out Request: TAppAPIRequest; out ABreak: Boolean)
+  procedure(var Request: TAppAPIRequest; out ABreak: Boolean)
   begin
     if (not TGenericUtils.isEmptyOrNull(Request)) then
       TGenericUtils.freeAndNil(Request);

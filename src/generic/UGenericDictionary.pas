@@ -43,8 +43,7 @@ type
 implementation
 
 uses
-  UGenericUtils,
-  UArrayUtils;
+  UDictImports;
 
 { TGenericDictionary }
 
@@ -70,10 +69,10 @@ var
 begin
   LResult := False;
   LList := FDictionary.Values.ToArray;
-  TArrayUtils.forEach<TValue>(LList,
-  procedure(out ATValue: TValue; out ABreak: Boolean)
+  TArrU.forEach<TValue>(LList,
+  procedure(var ATValue: TValue; out ABreak: Boolean)
   begin
-    if TGenericUtils.equals<T>(ATValue.AsType<T>) then
+    if TGenU.equals<T>(ATValue.AsType<T>) then
     begin
       LResult := True;
       ABreak := True;
@@ -91,30 +90,30 @@ destructor TGenericDictionary.Destroy;
 var LList: TArray<TValue>;
 begin
   LList := Values;
-  TArrayUtils.forEach<TValue>(LList,
-  procedure(out AValue: TValue; out ABreak: Boolean)
+  TArrU.forEach<TValue>(LList,
+  procedure(var AValue: TValue; out ABreak: Boolean)
   var
     FObj: TObject;
     I: Integer;
   begin
-    if TGenericUtils.isObject(AValue) then
+    if TGenU.isObject(AValue) then
     begin
       FObj := AValue.AsObject;
-      TGenericUtils.freeAndNil(FObj);
+      TGenU.freeAndNil(FObj);
     end;
-    if TGenericUtils.isArrayOfObject(AValue) then
+    if TGenU.isArrayOfObject(AValue) then
     begin
       for I := 0 to AValue.GetArrayLength do
       begin
-        if TGenericUtils.isObject(AValue.GetArrayElement(I)) then
+        if TGenU.isObject(AValue.GetArrayElement(I)) then
         begin
           FObj := AValue.GetArrayElement(I).AsObject;
-          TGenericUtils.freeAndNil(FObj);
+          TGenU.freeAndNil(FObj);
         end;
       end;
     end;
   end);
-  TGenericUtils.freeAndNil(FDictionary);
+  TGenU.freeAndNil(FDictionary);
   inherited;
 end;
 
@@ -157,7 +156,7 @@ end;
 
 function TGenericDictionary.Values<T>: TArray<T>;
 begin
-  Result := TArrayUtils.map<TValue, T>(Values,
+  Result := TArrU.map<TValue, T>(Values,
   function(AValue: TValue): T
   begin
     Result := AValue.AsType<T>;
