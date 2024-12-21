@@ -9,12 +9,17 @@ uses
   UDirection;
 
 type
+  _TArrValue<T> = record
+    Index: Integer;
+    Value: T;
+    IntValue: Integer;
+    FinalPos: Integer;
+  end;
+
   TArrayUtils = class
 //    class function TArrayToTList<T>(AArray: TArray<T>): TList<T>;
 //    class function TArrayCast<T,R>(AArray: TArray<T>): TArray<R>; overload;
 //    class function TArrayCast<R>(AArray: TArray<TValue>): TArray<R>; overload;
-//    class function filter<T>(AList: TArray<T>; AFunc: TFilter<T>): TArray<T>; overload;
-//    class function filter<T>(AList: TArray<T>; AFunc: TFilterIndex<T>): TArray<T>; overload;
 
     { Pointer }
     class procedure forEach<T>(AList: Pointer; AProc: TForEach<T>); overload;
@@ -41,14 +46,14 @@ type
 
     class function reduce<T>(AList: TArray<T>; AFunc:TReduce<T>): TArray<T>;
 
-    class function add<T>(AList: TArray<T>; ANewValue: T): TArray<T>; overload;
-    class function remove<T>(AList: TArray<T>; AValue:T): Boolean;
+    class function add<T>(var AList: TArray<T>; ANewValue: T): TArray<T>; overload;
+    class function remove<T>(var AList: TArray<T>; AValue:T): Boolean;
 
-    class function pop<T>(AList: TArray<T>; AValue:T): Boolean;
-    class function shift<T>(AList: TArray<T>; AValue:T): Boolean;
-    class function unshift<T>(AList: TArray<T>; AValue:T): Boolean;
+    class function pop<T>(var AList: TArray<T>; AValue:T): Boolean;
+    class function shift<T>(var AList: TArray<T>; AValue:T): Boolean;
+    class function unshift<T>(var AList: TArray<T>; AValue:T): Boolean;
 
-    class function concat<T>(AList: TArray<T>; ANewValues:TArray<T>): TArray<T>; overload;
+    class function concat<T>(var AList: TArray<T>; ANewValues:TArray<T>): TArray<T>; overload;
 
     class function find<T>(AList: TArray<T>; AFunc: TFind<T>): T;
 
@@ -75,7 +80,7 @@ uses
   UArrayException,
   UGenericUtils,
   UAutoDestroy,
-  UEasyImport;
+  UArrayImports;
 
 { TArrayUtils }
 
@@ -298,32 +303,32 @@ begin
 
 end;
 
-class function TArrayUtils.add<T>(AList: TArray<T>; ANewValue: T): TArray<T>;
+class function TArrayUtils.add<T>(var AList: TArray<T>; ANewValue: T): TArray<T>;
 begin
 
 end;
 
-class function TArrayUtils.remove<T>(AList: TArray<T>; AValue:T): Boolean;
+class function TArrayUtils.remove<T>(var AList: TArray<T>; AValue:T): Boolean;
 begin
 
 end;
 
-class function TArrayUtils.pop<T>(AList: TArray<T>; AValue:T): Boolean;
+class function TArrayUtils.pop<T>(var AList: TArray<T>; AValue:T): Boolean;
 begin
 
 end;
 
-class function TArrayUtils.shift<T>(AList: TArray<T>; AValue:T): Boolean;
+class function TArrayUtils.shift<T>(var AList: TArray<T>; AValue:T): Boolean;
 begin
 
 end;
 
-class function TArrayUtils.unshift<T>(AList: TArray<T>; AValue:T): Boolean;
+class function TArrayUtils.unshift<T>(var AList: TArray<T>; AValue:T): Boolean;
 begin
 
 end;
 
-class function TArrayUtils.concat<T>(AList: TArray<T>; ANewValues:TArray<T>): TArray<T>;
+class function TArrayUtils.concat<T>(var AList: TArray<T>; ANewValues:TArray<T>): TArray<T>;
 begin
 
 end;

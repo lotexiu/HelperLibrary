@@ -68,6 +68,9 @@ contains
   UEasyImport in 'src\UEasyImport.pas',
   UTOperation in 'src\operation\UTOperation.pas',
   UOperationException in 'src\operation\UOperationException.pas',
-  UDictImports in 'src\generic\imports\UDictImports.pas';
+  UDictImports in 'src\generic\imports\UDictImports.pas',
+  UArrayImports in 'src\array\imports\UArrayImports.pas',
+  UGenericValue in 'src\generic\UGenericValue.pas',
+  UAutoDestroyManagement in 'src\generic\UAutoDestroyManagement.pas';
 
 end.

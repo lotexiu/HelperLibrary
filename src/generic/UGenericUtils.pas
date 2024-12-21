@@ -18,15 +18,6 @@ type
     Value: T;
   end;
 
-  TGenericValue<T> = record
-  private
-  public
-    Value: T;
-    constructor Create(AValue: T);
-    class operator Initialize(out Dest: TGenericValue<T>);
-    class operator Finalize(var Dest: TGenericValue<T>);
-  end;
-
   TGenericUtils = class
     class function castTo<R,T>(AValue: T): R; overload;
     class function castTo<R>(Avalue: Pointer): R; overload;
@@ -107,22 +98,7 @@ uses
   UGenericException,
   UDebugUtils;
 
-{ TGenericValue<T> }
-
-constructor TGenericValue<T>.Create(AValue: T);
-begin
-  Value := AValue;
-end;
-
-class operator TGenericValue<T>.Finalize(var Dest: TGenericValue<T>);
-begin
-  TGenericUtils.freeAndNil<T>(Dest.Value);
-end;
-
-class operator TGenericValue<T>.Initialize(out Dest: TGenericValue<T>);
-begin
-  Dest.Value := Default(T);
-end;
+{ TGenericUtils }
 
 class function TGenericUtils.castTo<R,T>(AValue: T): R;
 begin
@@ -199,8 +175,13 @@ var
 begin
   Result := False;
   try
-    LCompare := TEqualityComparer<T>.Default;
-    Result := LCompare.Equals(AValue, AValue2);
+    if isObject<T> then
+      Result := TObject((@AValue)^).Equals(TObject((@AValue2)^))
+    else
+    begin
+      LCompare := TEqualityComparer<T>.Default;
+      Result := LCompare.Equals(AValue, AValue2);
+    end;
   except
     raise TGenericException.Create('Fail on generic compare '+typeName<T>+'.');
   end;
@@ -329,8 +310,13 @@ begin
 end;
 
 class function TGenericUtils.isObject<T>: Boolean;
+var
+  LDefault: T;
+  LValue: TValue;
 begin
-  Result := isObject(TValue.From<T>(Default(T)));
+  LDefault := Default(T);
+  LValue := TValue.From<T>(LDefault);
+  Result := isObject(LValue);
 end;
 
 class function TGenericUtils.isObject<T>(AValue: T): Boolean;
@@ -508,12 +494,14 @@ class procedure TGenericUtils.setFieldValue<T, V>(AObj: Pointer; AField: String;
 var
   LRttiContext: TRttiContext;
   LRtti: TRttiType;
+  LValue: TValue;
   LT:T;
 begin
   LRtti := rttiType<T>(LRttiContext);
   if (not isEmptyOrNull(LRtti.GetField(AField))) then
   begin
-    LRtti.GetField(AField).SetValue(AObj, TValue.From<V>(AValue));
+    LValue := TValue.From<V>(AValue);
+    LRtti.GetField(AField).SetValue(AObj, LValue);
   end;
   LRttiContext.Free;
 end;

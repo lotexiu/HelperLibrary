@@ -18,6 +18,7 @@ type
     constructor Create(AValue: T);
 
     class operator Implicit(AEnum: String): TEnum<T>;
+    class operator Implicit(AEnum: Integer): TEnum<T>;
     class operator Implicit(AEnum: T): TEnum<T>;
     class operator Implicit(AEnum: TEnum<T>): T;
 
@@ -83,6 +84,11 @@ end;
 class operator TEnum<T>.GreaterThanOrEqual(AEnum1, AEnum2: TEnum<T>): Boolean;
 begin
   Result := (AEnum1 > AEnum2) or (AEnum1 = AEnum2);
+end;
+
+class operator TEnum<T>.Implicit(AEnum: Integer): TEnum<T>;
+begin
+  Result := TEnumUtils.enumOf<T>(AEnum);
 end;
 
 class operator TEnum<T>.LessThan(AEnum1, AEnum2: TEnum<T>): Boolean;

@@ -15,6 +15,7 @@ type
     class function length<T>: Integer; static;
     class function indexOf<T>(AEnum: T): Integer;
     class function strToValue<T>(AEnum: String): T;
+    class function enumOf<T>(AEnum: Integer): T;
   end;
 
   TEnumDetails = class(TCustomAttribute)
@@ -91,6 +92,11 @@ begin
 end;
 
 { TEnumUtils }
+
+class function TEnumUtils.enumOf<T>(AEnum: Integer): T;
+begin
+  Result := TValue.FromOrdinal(TypeInfo(T), AEnum).AsType<T>;
+end;
 
 class function TEnumUtils.indexOf<T>(AEnum: T): Integer;
 var
