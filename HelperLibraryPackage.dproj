@@ -145,6 +145,7 @@
         <DCCReference Include="src\array\imports\UArrayImports.pas"/>
         <DCCReference Include="src\generic\UGenericValue.pas"/>
         <DCCReference Include="src\generic\UAutoDestroyManagement.pas"/>
+        <DCCReference Include="src\operation\interface\UIOperations.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

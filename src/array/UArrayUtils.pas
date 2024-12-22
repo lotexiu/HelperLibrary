@@ -79,7 +79,7 @@ uses
   TypInfo,
   UArrayException,
   UGenericUtils,
-  UAutoDestroy,
+//  UAutoDestroy,
   UArrayImports;
 
 { TArrayUtils }
@@ -257,35 +257,35 @@ begin
 end;
 
 class function TArrayUtils.sort<T>(AList: TArray<T>; AFunc: TSort<T>): TArray<T>;
-var
-  LNumberList: TArray<Integer>;
-  LNewListR: TArray<RAD<T>>;
-  LNewList: TArray<T>;
-  LSize, LLow, LHigh: RAD<Integer>;
+//var
+//  LNumberList: TArray<Integer>;
+//  LNewListR: TArray<RAD<T>>;
+//  LNewList: TArray<T>;
+//  LSize, LLow, LHigh: RAD<Integer>;
 begin
-  LLow := null;
-  LHigh := null;
-  LSize := Length(AList);
-  SetLength(LNumberList, LSize);
-  SetLength(LNewList, LSize);
-
-  forEach<T>(AList,procedure(var AItem: T; AIndex: Integer)
-  var LValue: Integer;
-  begin
-    LValue := AFunc(AItem); {Value converted into Integer}
-    LNumberList[AIndex] := LValue; {Adding Integer Value into NumberList}
-    LLow  := TGenU.ifThen<Integer>((LLow = null ) or (LLow > LValue ), LValue, LLow);
-    LHigh := TGenU.ifThen<Integer>((LHigh = null) or (LHigh < LValue), LValue, LHigh);
-  end);
-
-  forEach<Integer>(LNumberList,procedure(var AValue: Integer; AIndex: Integer)
-  var LPos: Integer;
-  begin
-//    LPos := Ceil(((AValue-LLow)*(LSize-1))/(LHigh-LLow));
-//    while LNewList[LPos] <> null do
-//      Dec(LPos);
-    LNewList[LPos] := AList[AIndex];
-  end);
+//  LLow := null;
+//  LHigh := null;
+//  LSize := Length(AList);
+//  SetLength(LNumberList, LSize);
+//  SetLength(LNewList, LSize);
+//
+//  forEach<T>(AList,procedure(var AItem: T; AIndex: Integer)
+//  var LValue: Integer;
+//  begin
+//    LValue := AFunc(AItem); {Value converted into Integer}
+//    LNumberList[AIndex] := LValue; {Adding Integer Value into NumberList}
+//    LLow  := TGenU.ifThen<Integer>((LLow = null ) or (LLow > LValue ), LValue, LLow);
+//    LHigh := TGenU.ifThen<Integer>((LHigh = null) or (LHigh < LValue), LValue, LHigh);
+//  end);
+//
+//  forEach<Integer>(LNumberList,procedure(var AValue: Integer; AIndex: Integer)
+//  var LPos: Integer;
+//  begin
+////    LPos := Ceil(((AValue-LLow)*(LSize-1))/(LHigh-LLow));
+////    while LNewList[LPos] <> null do
+////      Dec(LPos);
+//    LNewList[LPos] := AList[AIndex];
+//  end);
 end;
 
 class function TArrayUtils.filter<T>(AList: TArray<T>; AFunc:TFilter<T>): TArray<T>;
@@ -360,3 +360,4 @@ end;
 
 
 end.
+
